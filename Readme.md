@@ -1,7 +1,7 @@
 # Проект «Большое путешествие»
 
 * Студент: [Elena Gerasimova](https://up.htmlacademy.ru/ecmascript/14/user/1458785).
-* Наставник: `Неизвестно`.
+* Наставник: [Дмитрий Гуляев](https://htmlacademy.ru/profile/dima).
 
 ---
 
