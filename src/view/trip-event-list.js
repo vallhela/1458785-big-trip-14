@@ -1,10 +1,4 @@
-const createTripEventListItemTemplate = (item) => {
-  return `<li class="trip-events__item">
-  ${item}
-</li>
-
-`;
-};
+import {createTripEventListItemTemplate} from './trip-event-item.js';
 
 export const createTripEventListTemplate = (items) => {
   return `<ul class="trip-events__list">
