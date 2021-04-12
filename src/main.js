@@ -1,12 +1,13 @@
 import {createSiteMenuTemplate} from './view/site-menu.js';
 import {createTripEventListTemplate} from './view/trip-event-list.js';
-import {createTripEventTemplate} from './view/trip-event.js';
 import {createTripFilterTemplate} from './view/trip-filter.js';
 import {createTripInfoTemplate} from './view/trip-info.js';
 import {createTripSortTemplate} from './view/trip-sort.js';
-import {createEditFormTemplate} from './view/edit-form.js';
+import {generateTripEventItem} from './mock/mock-data.js';
 
-const EVENT_COUNT = 3;
+const EVENT_COUNT = 20;
+
+const events = new Array(EVENT_COUNT).fill().map(generateTripEventItem);
 
 const render = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
@@ -22,9 +23,4 @@ render(tripControlsNavigationElement, createSiteMenuTemplate(), 'beforeend');
 render(tripControlsFiltersElement, createTripFilterTemplate(), 'beforeend');
 render(tripEventsElement, createTripSortTemplate(), 'beforeend');
 
-const listItems = [createEditFormTemplate()];
-for(let i = 0; i < EVENT_COUNT; i++) {
-  listItems.push(createTripEventTemplate());
-}
-
-render(tripEventsElement, createTripEventListTemplate(listItems), 'beforeend');
+render(tripEventsElement, createTripEventListTemplate(events), 'beforeend');
