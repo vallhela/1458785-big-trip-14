@@ -1,13 +1,8 @@
-const createTripEventListItemTemplate = (item) => {
-  return `<li class="trip-events__item">
-  ${item}
-</li>
+import {createTripEventListItemTemplate} from './trip-event-item.js';
 
-`;
-};
-
-export const createTripEventListTemplate = (items) => {
+export const createTripEventListTemplate = (events) => {
   return `<ul class="trip-events__list">
-  ${items.map((item) => createTripEventListItemTemplate(item))}
-</ul>`;
+  ${events.map((evt, index) => createTripEventListItemTemplate(evt, { mode: index == 0? 'edit': null, index })).join(' ')}
+</ul>
+`;
 };
