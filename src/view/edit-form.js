@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import {createEditFromEventTypeListTemplate} from './edit-form-event-type-list.js';
-import {createEditFormDetailsTemplate} from './edit-form-event-details.js';
+import {createEditFormEventDetailsTemplate} from './edit-form-event-details.js';
 
 export const createEditFormTemplate = (evt, options) => {
   const index = options.index;
@@ -53,6 +53,6 @@ export const createEditFormTemplate = (evt, options) => {
       <span class="visually-hidden">Open event</span>
     </button>
   </header>
-  ${createEditFormDetailsTemplate(evt, { index })}
+  ${createEditFormEventDetailsTemplate(evt, { index })}
 </form>`;
 };
