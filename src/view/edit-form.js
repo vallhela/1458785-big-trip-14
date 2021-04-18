@@ -1,8 +1,9 @@
 import dayjs from 'dayjs';
 import {createEditFromEventTypeListTemplate} from './edit-form-event-type-list.js';
 import {createEditFormEventDetailsTemplate} from './edit-form-event-details.js';
+import {createElement} from './utils.js';
 
-export const createEditFormTemplate = (evt, options) => {
+const createEditFormTemplate = (evt, options) => {
   const index = options.index;
 
   const dateFrom = dayjs(evt.dateFrom);
@@ -56,3 +57,27 @@ export const createEditFormTemplate = (evt, options) => {
   ${createEditFormEventDetailsTemplate(evt, { index })}
 </form>`;
 };
+
+export default class EditForm {
+  constructor(evt, options) {
+    this._evt = evt;
+    this._options = options;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createEditFormTemplate(this._evt, this._options);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
