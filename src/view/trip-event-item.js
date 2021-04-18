@@ -14,11 +14,21 @@ export default class TripEventItem {
     this._tripEvent = new TripEventView(evt);
     this._element = null;
 
+    const onEscKeyDown = (e) => {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        e.preventDefault();
+        renderEvent();
+        document.removeEventListener('keydown', onEscKeyDown);
+      }
+    };
+
     const renderForm = () => {
+      document.addEventListener('keydown', onEscKeyDown);
       this._element.replaceChild(this._editForm.getElement(), this._tripEvent.getElement());
     };
 
     const renderEvent = () => {
+      document.removeEventListener('keydown', onEscKeyDown);
       this._element.replaceChild(this._tripEvent.getElement(), this._editForm.getElement());
     };
 
@@ -28,6 +38,10 @@ export default class TripEventItem {
 
     this._editForm.getElement().addEventListener('submit', (e) => {
       e.preventDefault();
+      renderEvent();
+    });
+
+    this._editForm.getElement().querySelector('.event__rollup-btn').addEventListener('click', () => {
       renderEvent();
     });
   }
