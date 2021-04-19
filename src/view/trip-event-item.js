@@ -1,6 +1,7 @@
 import TripEventView from './trip-event.js';
 import EditFormView from './edit-form.js';
-import {createElement, render, RenderPosition} from './utils.js';
+import {render, RenderPosition, replace} from '../utils/render.js';
+import AbstractView from './abstract.js';
 
 const createTripEventListItemTemplate = () => {
   return `<li class="trip-events__item">
@@ -8,11 +9,11 @@ const createTripEventListItemTemplate = () => {
 `;
 };
 
-export default class TripEventItem {
+export default class TripEventItem extends AbstractView {
   constructor(evt, options) {
+    super();
     this._editForm = new EditFormView(evt, options);
     this._tripEvent = new TripEventView(evt);
-    this._element = null;
 
     const onEscKeyDown = (e) => {
       if (e.key === 'Escape' || e.key === 'Esc') {
@@ -24,42 +25,29 @@ export default class TripEventItem {
 
     const renderForm = () => {
       document.addEventListener('keydown', onEscKeyDown);
-      this._element.replaceChild(this._editForm.getElement(), this._tripEvent.getElement());
+      replace(this._editForm.getElement(), this._tripEvent.getElement());
     };
 
     const renderEvent = () => {
       document.removeEventListener('keydown', onEscKeyDown);
-      this._element.replaceChild(this._tripEvent.getElement(), this._editForm.getElement());
+      replace(this._tripEvent.getElement(), this._editForm.getElement());
     };
 
-    this._tripEvent.getElement().querySelector('.event__rollup-btn').addEventListener('click', () => {
+    this._tripEvent.setClickHandler(() => {
       renderForm();
     });
 
-    this._editForm.getElement().addEventListener('submit', (e) => {
-      e.preventDefault();
+    this._editForm.setClickHandler(() => {
       renderEvent();
     });
 
-    this._editForm.getElement().querySelector('.event__rollup-btn').addEventListener('click', () => {
-      renderEvent();
-    });
   }
 
   getTemplate() {
     return createTripEventListItemTemplate();
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-      render(this._element, this._tripEvent.getElement(), RenderPosition.BEFOREEND);
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
+  _onElementCreated(element) {
+    render(element, this._tripEvent.getElement(), RenderPosition.BEFOREEND);
   }
 }
