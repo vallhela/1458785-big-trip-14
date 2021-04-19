@@ -1,4 +1,4 @@
-export const createEditFormDestinationTemplate = (destination) => {
+export const createEditFormEventDestinationTemplate = (destination) => {
   if(!destination || !destination.description || destination.description === null) {
     return '';
   }

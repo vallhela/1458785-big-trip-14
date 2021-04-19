@@ -1,7 +1,8 @@
 import dayjs from 'dayjs';
 import {createOfferListTemplate} from './trip-event-offer-list.js';
+import {createElement} from './utils.js';
 
-export const createTripEventTemplate = (evt) => {
+const createTripEventTemplate = (evt) => {
   const dateFrom = dayjs(evt.dateFrom);
   const dateTo = dayjs(evt.dateTo);
 
@@ -34,3 +35,26 @@ export const createTripEventTemplate = (evt) => {
   </button>
 </div>`;
 };
+
+export default class TripEvent {
+  constructor(evt) {
+    this._evt = evt;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createTripEventTemplate(this._evt);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
