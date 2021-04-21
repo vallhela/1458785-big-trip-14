@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import {createEditFromEventTypeListTemplate} from './edit-form-event-type-list.js';
 import {createEditFormEventDetailsTemplate} from './edit-form-event-details.js';
-import {createElement} from './utils.js';
+import AbstractView from './abstract.js';
 
 const createEditFormTemplate = (evt, options) => {
   const index = options.index;
@@ -58,26 +58,37 @@ const createEditFormTemplate = (evt, options) => {
 </form>`;
 };
 
-export default class EditForm {
+export default class EditForm extends AbstractView {
   constructor(evt, options) {
+    super();
     this._evt = evt;
     this._options = options;
-    this._element = null;
+
+    this._clickHandler = this._clickHandler.bind(this);
   }
 
   getTemplate() {
     return createEditFormTemplate(this._evt, this._options);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  setClickHandler(callback) {
+    this._callback.click = callback;
   }
 
-  removeElement() {
-    this._element = null;
+  _clickHandler() {
+    const callback = this._callback.click;
+    if(callback){
+      callback();
+    }
+  }
+
+  _onElementCreated(element) {
+    element.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this._clickHandler();
+    });
+    element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+      this._clickHandler();
+    });
   }
 }

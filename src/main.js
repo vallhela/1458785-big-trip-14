@@ -5,7 +5,7 @@ import TripInfoView from './view/trip-info.js';
 import TripSortView from './view/trip-sort.js';
 import TripEventItemView from './view/trip-event-item.js';
 import NoEventView from './view/no-event.js';
-import {render, RenderPosition} from './view/utils.js';
+import {render, RenderPosition} from './utils/render.js';
 import {generateTripEventItem} from './mock/mock-data.js';
 
 const EVENT_COUNT = 20;
@@ -18,16 +18,16 @@ const tripControlsFiltersElement = document.querySelector('.trip-controls__filte
 const tripEventsElement = document.querySelector('.trip-events');
 
 if (events.length === 0) {
-  render(tripEventsElement, new NoEventView().getElement(), RenderPosition.BEFOREEND);
+  render(tripEventsElement, new NoEventView(), RenderPosition.BEFOREEND);
 } else {
-  render(tripMainElement, new TripInfoView().getElement(), RenderPosition.AFTERBEGIN);
-  render(tripControlsNavigationElement, new SiteMenuView().getElement(), RenderPosition.BEFOREEND);
-  render(tripControlsFiltersElement, new TripFilterView().getElement(), RenderPosition.BEFOREEND);
-  render(tripEventsElement, new TripSortView().getElement(), RenderPosition.BEFOREEND);
+  render(tripMainElement, new TripInfoView(), RenderPosition.AFTERBEGIN);
+  render(tripControlsNavigationElement, new SiteMenuView(), RenderPosition.BEFOREEND);
+  render(tripControlsFiltersElement, new TripFilterView(), RenderPosition.BEFOREEND);
+  render(tripEventsElement, new TripSortView(), RenderPosition.BEFOREEND);
 }
 
 const tripEventListView = new TripEventListView();
-render(tripEventsElement, tripEventListView.getElement(), RenderPosition.BEFOREEND);
-events.map((evt, index) => render(tripEventListView.getElement(), new TripEventItemView(evt, {index}).getElement(), RenderPosition.BEFOREEND));
+render(tripEventsElement, tripEventListView, RenderPosition.BEFOREEND);
+events.map((evt, index) => render(tripEventListView, new TripEventItemView(evt, {index}), RenderPosition.BEFOREEND));
 
 
