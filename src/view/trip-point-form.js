@@ -3,9 +3,8 @@ import {createEditFromEventTypeListTemplate} from './edit-form-event-type-list.j
 import {createEditFormEventDetailsTemplate} from './edit-form-event-details.js';
 import AbstractView from './abstract.js';
 
-const createEditFormTemplate = (evt, options) => {
-  const index = options.index;
-
+const createTemplate = (evt) => {
+  const index = 1;
   const dateFrom = dayjs(evt.dateFrom);
   const dateTo = dayjs(evt.dateTo);
 
@@ -59,16 +58,15 @@ const createEditFormTemplate = (evt, options) => {
 };
 
 export default class EditForm extends AbstractView {
-  constructor(evt, options) {
+  constructor(point) {
     super();
-    this._evt = evt;
-    this._options = options;
+    this._point = point;
 
     this._clickHandler = this._clickHandler.bind(this);
   }
 
   getTemplate() {
-    return createEditFormTemplate(this._evt, this._options);
+    return createTemplate(this._point);
   }
 
   setClickHandler(callback) {
@@ -83,8 +81,8 @@ export default class EditForm extends AbstractView {
   }
 
   _onElementCreated(element) {
-    element.addEventListener('submit', (e) => {
-      e.preventDefault();
+    element.addEventListener('submit', (evt) => {
+      evt.preventDefault();
       this._clickHandler();
     });
     element.querySelector('.event__rollup-btn').addEventListener('click', () => {
