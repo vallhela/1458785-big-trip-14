@@ -17,3 +17,17 @@ export const getRandomArray = (amount, factory) => {
 export const getRandomArrayItem = (array) => {
   return array[getRandomInteger(0, array.length - 1)];
 };
+
+export const updateArrayItemById = (array, updated) => {
+  const index = array.findIndex((item) => item.id === updated.id);
+
+  if (index === -1) {
+    return array;
+  }
+
+  return [
+    ...array.slice(0, index),
+    updated,
+    ...array.slice(index + 1),
+  ];
+};

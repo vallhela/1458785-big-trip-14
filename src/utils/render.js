@@ -48,3 +48,8 @@ export const replace = (oldChild, newChild) => {
 
   parent.replaceChild(newChild, oldChild);
 };
+
+export const remove = (child) => {
+  const element = child instanceof AbstractView ? child.removeElement() : child;
+  element.remove();
+};

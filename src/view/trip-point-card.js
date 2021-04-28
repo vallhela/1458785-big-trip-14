@@ -2,16 +2,17 @@ import dayjs from 'dayjs';
 import {createOfferListTemplate} from './trip-event-offer-list.js';
 import AbstractView from './abstract.js';
 
-const createTripEventTemplate = (evt) => {
-  const dateFrom = dayjs(evt.dateFrom);
-  const dateTo = dayjs(evt.dateTo);
+const createTemplate = (point) => {
+  const dateFrom = dayjs(point.dateFrom);
+  const dateTo = dayjs(point.dateTo);
+  const favorite = point.isFavorite ? 'event__favorite-btn--active' : '';
 
   return `<div class="event">
   <time class="event__date" datetime="${dateFrom.format('YYYY-MM-DD').toUpperCase()}">${dateFrom.format('MMM DD')}</time>
   <div class="event__type">
-    <img class="event__type-icon" width="42" height="42" src="img/icons/${evt.type.toLowerCase()}.png" alt="Event type icon">
+    <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type.toLowerCase()}.png" alt="Event type icon">
   </div>
-  <h3 class="event__title">${evt.type} ${evt.destination.name}</h3>
+  <h3 class="event__title">${point.type} ${point.destination.name}</h3>
   <div class="event__schedule">
     <p class="event__time">
       <time class="event__start-time" datetime="${dateFrom.format('YYYY-MM-DDTHH:mm')}">${dateFrom.format('HH:mm')}</time>
@@ -21,10 +22,10 @@ const createTripEventTemplate = (evt) => {
     <p class="event__duration">40M</p>
   </div>
   <p class="event__price">
-    &euro;&nbsp;<span class="event__price-value">${evt.price}</span>
+    &euro;&nbsp;<span class="event__price-value">${point.price}</span>
   </p>
-  ${createOfferListTemplate(evt.offers)}
-  <button class="event__favorite-btn event__favorite-btn--active" type="button">
+  ${createOfferListTemplate(point.offers)}
+  <button class="event__favorite-btn ${favorite}" type="button">
     <span class="visually-hidden">Add to favorite</span>
     <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
       <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
@@ -36,24 +37,37 @@ const createTripEventTemplate = (evt) => {
 </div>`;
 };
 
-export default class TripEvent extends AbstractView {
-  constructor(evt) {
+export default class TripPointCard extends AbstractView {
+  constructor(point) {
     super();
-    this._evt = evt;
 
-    this._clickHandler = this._clickHandler.bind(this);
+    this._openEditClickHandler = this._openEditClickHandler.bind(this);
+    this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
+
+    this._point = point;
   }
 
   getTemplate() {
-    return createTripEventTemplate(this._evt);
+    return createTemplate(this._point);
   }
 
-  setClickHandler(callback) {
-    this._callback.click = callback;
+  setOpenEditClickHandler(callback) {
+    this._callback.openEditClick = callback;
   }
 
-  _clickHandler() {
-    const callback = this._callback.click;
+  _openEditClickHandler() {
+    const callback = this._callback.openEditClick;
+    if(callback){
+      callback();
+    }
+  }
+
+  setFavoriteClickHandler(callback) {
+    this._callback.favoriteClick = callback;
+  }
+
+  _favoriteClickHandler() {
+    const callback = this._callback.favoriteClick;
     if(callback){
       callback();
     }
@@ -61,7 +75,10 @@ export default class TripEvent extends AbstractView {
 
   _onElementCreated(element) {
     element.querySelector('.event__rollup-btn').addEventListener('click', () => {
-      this._clickHandler();
+      this._openEditClickHandler();
+    });
+    element.querySelector('.event__favorite-btn').addEventListener('click', () => {
+      this._favoriteClickHandler();
     });
   }
 }

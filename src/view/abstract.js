@@ -24,7 +24,10 @@ export default class Abstract {
   }
 
   removeElement() {
+    const element = this._element;
     this._element = null;
+
+    return element;
   }
 
   _onElementCreated() {
