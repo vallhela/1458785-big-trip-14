@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import {nanoid} from 'nanoid';
 import {getRandomInteger, getRandomArray, getRandomArrayItem} from '../utils/common.js';
 
 const getRandomDate = (options = null) => {
@@ -77,6 +78,7 @@ const generateOffer = () => {
 
 export const generateTripEventItem = () => {
   return {
+    id: nanoid(),
     dateFrom: getRandomDate(),
     dateTo: getRandomDate(),
     type: getRandomArrayItem(eventTypes),
