@@ -48,7 +48,7 @@ export const replace = (oldChild, newChild) => {
     throw new Error('Old child has no parent.');
   }
 
-  parentElement.replaceChild(newChild, oldChild);
+  parentElement.replaceChild(newElement, oldElement);
 };
 
 export const remove = (child) => {

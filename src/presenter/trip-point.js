@@ -1,7 +1,7 @@
 import TripPointCardView from '../view/trip-point-card';
 import TripPointFormView from '../view/trip-point-form';
 
-import { remove, render, RenderPosition, replace } from '../utils/render';
+import {remove, render, RenderPosition, replace} from '../utils/render';
 
 export default class TripPoint {
   constructor(container, changeData, beforeFormShown) {
