@@ -5,22 +5,27 @@ export const RenderPosition = {
   BEFOREEND: 'beforeend',
 };
 
-export const render = (container, child, place) => {
-  if (container instanceof AbstractView) {
-    container = container.getElement();
+const getElement = (item) => {
+  if(item === null) {
+    return null;
   }
 
-  if (child instanceof AbstractView) {
-    child = child.getElement();
-  }
+  return item instanceof AbstractView ? item.getElement() : item;
+};
+
+export const render = (container, child, place) => {
+  const containerElement = getElement(container);
+  const childElement = getElement(child);
 
   switch (place) {
     case RenderPosition.AFTERBEGIN:
-      container.prepend(child);
+      containerElement.prepend(childElement);
       break;
     case RenderPosition.BEFOREEND:
-      container.append(child);
+      containerElement.append(childElement);
       break;
+    default:
+      throw new Error('Given place is not supported.');
   }
 };
 
@@ -32,24 +37,54 @@ export const createElement = (template) => {
 };
 
 export const replace = (oldChild, newChild) => {
-  if (oldChild instanceof AbstractView) {
-    oldChild = oldChild.getElement();
-  }
-
-  if (newChild instanceof AbstractView) {
-    newChild = newChild.getElement();
-  }
-
-  const parent = oldChild.parentElement;
-
-  if (parent === null || oldChild === null || newChild === null) {
+  const oldElement = getElement(oldChild);
+  const newElement = getElement(newChild);
+  if (oldElement === null || newElement === null) {
     throw new Error('Can\'t replace unexisting elements');
   }
 
-  parent.replaceChild(newChild, oldChild);
+  const parentElement = oldElement.parentElement;
+  if(parentElement === null) {
+    throw new Error('Old child has no parent.');
+  }
+
+  parentElement.replaceChild(newChild, oldChild);
 };
 
 export const remove = (child) => {
-  const element = child instanceof AbstractView ? child.removeElement() : child;
+  const element = getElement(child);
   element.remove();
+};
+
+export const contains = (parent, child) => {
+  const parentElement = getElement(parent);
+  const childElement = getElement(child);
+
+  if(parentElement === null || childElement === null) {
+    return false;
+  }
+
+  return parentElement.contains(childElement);
+};
+
+export const tryReplace = (oldChild, newChild) => {
+  const oldElement = getElement(oldChild);
+  const newElement = getElement(newChild);
+  if(oldElement === null) {
+    return false;
+  }
+
+  const parentElement = oldElement.parentElement;
+  if(parentElement === null) {
+    return false;
+  }
+
+  if(newElement === null) {
+    remove(oldElement);
+  }
+  else{
+    parentElement.replaceChild(newElement, oldElement);
+  }
+
+  return true;
 };
