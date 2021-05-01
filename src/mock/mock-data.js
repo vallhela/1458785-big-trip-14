@@ -2,18 +2,27 @@ import dayjs from 'dayjs';
 import {nanoid} from 'nanoid';
 import {getRandomInteger, getRandomArray, getRandomArrayItem} from '../utils/common.js';
 
-const getRandomDate = (options = null) => {
+const getRandomTime = (options = null) => {
   if(options && options.canBeNull){
     const shouldBeNull = Boolean(getRandomInteger(0, 1));
     if(shouldBeNull) {
-      return null;
+      return {dateFrom: null, dateTo: null};
     }
   }
 
   const maxDaysGap = 7;
-  const daysGap = getRandomInteger(-maxDaysGap, maxDaysGap);
+  const maxMinutesGap = 11 * 60;
 
-  return dayjs().add(daysGap, 'day').toDate();
+  const dateFrom = dayjs()
+    .add(getRandomInteger(-maxDaysGap, maxDaysGap), 'day')
+    .add(getRandomInteger(0, maxMinutesGap), 'minute')
+    .toDate();
+
+  const dateTo = dayjs(dateFrom)
+    .add(getRandomInteger(0, maxMinutesGap), 'minute')
+    .toDate();
+
+  return {dateFrom, dateTo};
 };
 
 const eventTypes = [
@@ -77,10 +86,11 @@ const generateOffer = () => {
 };
 
 export const generateTripEventItem = () => {
+  const time = getRandomTime();
   return {
     id: nanoid(),
-    dateFrom: getRandomDate(),
-    dateTo: getRandomDate(),
+    dateFrom: time.dateFrom,
+    dateTo: time.dateTo,
     type: getRandomArrayItem(eventTypes),
     destination: generateRandomDestination(),
     offers: getRandomArray(getRandomInteger(0, 5), generateOffer),

@@ -2,9 +2,52 @@ import dayjs from 'dayjs';
 import {createOfferListTemplate} from './trip-event-offer-list.js';
 import AbstractView from './abstract.js';
 
+const formatDurationPart = (value) => {
+  let result = '';
+  if(value < 10) {
+    result += '0';
+  }
+
+  result += value;
+  return result;
+};
+
+const getDuration = (start, end) => {
+  if(start == null || end == null) {
+    return '';
+  }
+
+  let diff = end.diff(start, 'minute');
+  if(diff < 0) {
+    return '';
+  }
+
+  const days = parseInt(diff/(24*60));
+  diff = diff - days * 24 * 60;
+
+  const hours = parseInt(diff / 60);
+  diff = diff - hours * 60;
+
+  const minutes = diff;
+
+  let result = '';
+  if(days > 0) {
+    result += `${formatDurationPart(days)}D `;
+  }
+
+  if(hours > 0 || days > 0) {
+    result += `${formatDurationPart(hours)}H `;
+  }
+
+  result += `${formatDurationPart(minutes)}M`;
+
+  return result;
+};
+
 const createTemplate = (point) => {
   const dateFrom = dayjs(point.dateFrom);
   const dateTo = dayjs(point.dateTo);
+  const duration = getDuration(dateFrom, dateTo);
   const favorite = point.isFavorite ? 'event__favorite-btn--active' : '';
 
   return `<div class="event">
@@ -19,7 +62,7 @@ const createTemplate = (point) => {
       &mdash;
       <time class="event__end-time" datetime="${dateTo.format('YYYY-MM-DDTHH:mm')}">${dateTo.format('HH:mm')}</time>
     </p>
-    <p class="event__duration">40M</p>
+    <p class="event__duration">${duration}</p>
   </div>
   <p class="event__price">
     &euro;&nbsp;<span class="event__price-value">${point.price}</span>
