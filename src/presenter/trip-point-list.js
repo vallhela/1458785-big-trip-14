@@ -1,70 +1,46 @@
-import TripPointListAreaView from '../view/trip-point-list-area';
-import TripPointListSortView from '../view/trip-point-list-sort';
 import TripPointListEmptyView from '../view/trip-point-list-empty';
-import TripPointListItemView from '../view/trip-point-list-item';
 
-import TripPointPresenter from './trip-point';
+import TripPointListContentPresenter from './trip-point-list-content';
 
-import { render, RenderPosition} from '../utils/render';
-import { updateArrayItemById } from '../utils/common';
+import { render, RenderPosition, remove} from '../utils/render';
 
 export default class TripPointList {
   constructor(container) {
     this.init = this.init.bind(this);
-    this._handlePointChange = this._handlePointChange.bind(this);
-    this._handleBeforeFormShown = this._handleBeforeFormShown.bind(this);
+    this._resetContentPresenter = this._resetContentPresenter.bind(this);
+    this._resetEmptyComponent = this._resetEmptyComponent.bind(this);
 
     this._container = container;
 
-    this._sortComponent = new TripPointListSortView();
-    this._areaComponent = new TripPointListAreaView();
-
-    this._pointPresenter = {};
+    this._emptyComponent = null;
+    this._contentPresenter = null;
   }
 
   init(points) {
-    this._points = points;
+    this._resetEmptyComponent();
+    this._resetContentPresenter();
 
     if(points && points.length > 0) {
-      render(this._container, this._sortComponent, RenderPosition.BEFOREEND);
-      render(this._container, this._areaComponent, RenderPosition.BEFOREEND);
-
-      this._renderPoints(points);
+      this._contentPresenter = new TripPointListContentPresenter(this._container);
+      this._contentPresenter.init(points);
     }
     else{
-      render(this._container, new TripPointListEmptyView(), RenderPosition.BEFOREEND);
+      this._emptyComponent = new TripPointListEmptyView();
+      render(this._container, this._emptyComponent, RenderPosition.BEFOREEND);
     }
   }
 
-  _renderPoint(point) {
-    const item = new TripPointListItemView();
-    const pointPresenter = new TripPointPresenter(item, this._handlePointChange, this._handleBeforeFormShown);
-    pointPresenter.init(point);
-
-    render(this._areaComponent, item, RenderPosition.BEFOREEND);
-
-    this._pointPresenter[point.id] = pointPresenter;
+  _resetContentPresenter() {
+    if(this._contentPresenter !== null) {
+      this._contentPresenter.destroy();
+      this._contentPresenter = null;
+    }
   }
 
-  _renderPoints(points) {
-    points.forEach((point) => this._renderPoint(point));
-  }
-
-  _clearPoints() {
-    Object
-      .values(this._pointPresenter)
-      .forEach((presenter) => presenter.destroy());
-    this._pointPresenter = {};
-  }
-
-  _handlePointChange(updated) {
-    this._points = updateArrayItemById(this._points, updated);
-    this._pointPresenter[updated.id].init(updated);
-  }
-
-  _handleBeforeFormShown() {
-    Object
-      .values(this._pointPresenter)
-      .forEach((presenter) => presenter.showCard());
+  _resetEmptyComponent() {
+    if(this._emptyComponent !== null) {
+      remove(this._emptyComponent);
+      this._emptyComponent = null;
+    }
   }
 }
