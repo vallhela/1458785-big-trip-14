@@ -8,6 +8,7 @@ export default class TripPoint {
     this.init = this.init.bind(this);
     this._renderCard = this._renderCard.bind(this);
     this._renderForm = this._renderForm.bind(this);
+    this._handleFormSubmit = this._handleFormSubmit.bind(this);
     this._handleKeyDown = this._handleKeyDown.bind(this);
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
     this._tryReplace = this._tryReplace.bind(this);
@@ -28,6 +29,7 @@ export default class TripPoint {
 
     const formComponent = new TripPointFormView(point);
     formComponent.setClickHandler(this._renderCard);
+    formComponent.setFormSubmitHandler(this._handleFormSubmit);
 
     this._tryReplace(this._cardComponent, cardComponent);
     this._tryReplace(this._formComponent, formComponent);
@@ -80,6 +82,7 @@ export default class TripPoint {
 
   _renderCard() {
     document.removeEventListener('keydown', this._handleKeyDown);
+    this._formComponent.reset(this._point);
     replace(this._formComponent, this._cardComponent);
   }
 
@@ -106,5 +109,10 @@ export default class TripPoint {
     );
 
     this._changeData(data);
+  }
+
+  _handleFormSubmit(point) {
+    this._changeData(point);
+    this._renderCard();
   }
 }

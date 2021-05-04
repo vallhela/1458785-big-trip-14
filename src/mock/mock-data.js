@@ -39,7 +39,7 @@ const descriptions = [
   'In rutrum ac purus sit amet tempus.',
 ];
 
-const generateRandomPicture = () => {
+const generateRandomPhoto = () => {
   return {
     'description': getRandomArrayItem(descriptions),
     'src': `http://picsum.photos/248/152?r=${getRandomInteger(1, 55)}`,
@@ -50,7 +50,7 @@ const generateRandomDestination = (city) => {
   return {
     'name': city,
     'description': getRandomArray(getRandomInteger(1, 5), () => getRandomArrayItem(descriptions)).join(' '),
-    'pictures': getRandomArray(getRandomInteger(1, 5), generateRandomPicture),
+    'photos': getRandomArray(getRandomInteger(1, 5), generateRandomPhoto),
   };
 };
 

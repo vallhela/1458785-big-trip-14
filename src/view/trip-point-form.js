@@ -4,6 +4,7 @@ import TripPointFormTypeView from './trip-point-form-type.js';
 import TripPointFormOfferListView from './trip-point-form-offer-list.js';
 import TripPointFormDestinationView from './trip-point-form-destination.js';
 import TripPointFormDetailsView from './trip-point-form-details.js';
+import TripPointFormDestinationPhotoListView from './trip-point-form-destination-photo-list.js';
 
 import {getAllDestinations, getAllEventTypes} from '../mock/mock-data.js';
 
@@ -58,24 +59,34 @@ const createTemplate = (point, cities) => {
 </form>`;
 };
 
-const convertToData = (point) => {
+const parsePointToData = (point) => {
   return Object.assign(
     {},
     point,
     {},
   );
 };
+
+const parseDataToPoint = (data) => {
+  return Object.assign(
+    {},
+    data,
+    {},
+  );
+};
 export default class TripPointForm extends SmartView {
   constructor(point) {
     super();
-    this._data = convertToData(point);
+    this._data = parsePointToData(point);
     this._destinations = getAllDestinations();
     this._eventTypes = getAllEventTypes();
 
     this._clickHandler = this._clickHandler.bind(this);
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._typeChangeHandler = this._typeChangeHandler.bind(this);
     this._offerCheckedChangeHandler = this._offerCheckedChangeHandler.bind(this);
     this._destinationChangeHandler = this._destinationChangeHandler.bind(this);
+    this.reset = this.reset.bind(this);
   }
 
   getTemplate() {
@@ -93,10 +104,26 @@ export default class TripPointForm extends SmartView {
     }
   }
 
+  setFormSubmitHandler(callback) {
+    this._callback.formSubmit = callback;
+  }
+
+  _formSubmitHandler() {
+    const callback = this._callback.formSubmit;
+    if(callback){
+      const point = parseDataToPoint(this._data);
+      callback(point);
+    }
+  }
+
+  reset(point) {
+    this.updateData(parsePointToData(point));
+  }
+
   _onElementCreated(element) {
     element.addEventListener('submit', (evt) => {
       evt.preventDefault();
-      this._clickHandler();
+      this._formSubmitHandler();
     });
     element.querySelector('.event__input--destination').addEventListener('change', this._destinationChangeHandler);
     element.querySelector('.event__rollup-btn').addEventListener('click', this._clickHandler);
@@ -168,6 +195,12 @@ export default class TripPointForm extends SmartView {
       return null;
     }
 
-    return new TripPointFormDestinationView(data.destination);
+    const destinationComponent = new TripPointFormDestinationView(data.destination);
+    if(data.destination.photos !== null && data.destination.photos.length > 0) {
+      const photosComponent = new TripPointFormDestinationPhotoListView(data.destination.photos);
+      render(destinationComponent, photosComponent, RenderPosition.BEFOREEND);
+    }
+
+    return destinationComponent;
   }
 }
