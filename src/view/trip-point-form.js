@@ -1,5 +1,9 @@
 import dayjs from 'dayjs';
 
+import flatpickr from 'flatpickr';
+
+import '../../node_modules/flatpickr/dist/flatpickr.min.css';
+
 import TripPointFormTypeView from './trip-point-form-type.js';
 import TripPointFormOfferListView from './trip-point-form-offer-list.js';
 import TripPointFormDestinationView from './trip-point-form-destination.js';
@@ -86,7 +90,12 @@ export default class TripPointForm extends SmartView {
     this._typeChangeHandler = this._typeChangeHandler.bind(this);
     this._offerCheckedChangeHandler = this._offerCheckedChangeHandler.bind(this);
     this._destinationChangeHandler = this._destinationChangeHandler.bind(this);
+    this._startDateChangeHandler = this._startDateChangeHandler.bind(this);
+    this._endDateChangeHandler = this._endDateChangeHandler.bind(this);
     this.reset = this.reset.bind(this);
+
+    this._startDatePicker = null;
+    this._endDatePicker = null;
   }
 
   getTemplate() {
@@ -151,6 +160,9 @@ export default class TripPointForm extends SmartView {
     }
 
     render(element, detailsComponent, RenderPosition.BEFOREEND);
+
+    this._setStartDatePicker(element.querySelector('#event-start-time'));
+    this._setEndDatePicker(element.querySelector('#event-end-time'));
   }
 
   _typeChangeHandler(type) {
@@ -202,5 +214,49 @@ export default class TripPointForm extends SmartView {
     }
 
     return destinationComponent;
+  }
+
+  _startDateChangeHandler([date]) {
+    this.updateData({
+      dateFrom: date,
+    });
+  }
+
+  _setStartDatePicker(element) {
+    if (this._startDatePicker) {
+      this._startDatePicker.destroy();
+      this._startDatePicker = null;
+    }
+
+    this._startDatePicker = flatpickr(
+      element,
+      {
+        dateFormat: 'd/m/Y H:i',
+        defaultDate: this._data.dateFrom,
+        onChange: this._startDateChangeHandler,
+      },
+    );
+  }
+
+  _endDateChangeHandler([date]) {
+    this.updateData({
+      dateTo: date,
+    });
+  }
+
+  _setEndDatePicker(element) {
+    if (this._endDatePicker) {
+      this._endDatePicker.destroy();
+      this._endDatePicker = null;
+    }
+
+    this._endDatePicker = flatpickr(
+      element,
+      {
+        dateFormat: 'd/m/Y H:i',
+        defaultDate: this._data.dateTo,
+        onChange: this._endDateChangeHandler,
+      },
+    );
   }
 }
