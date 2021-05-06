@@ -25,29 +25,6 @@ const getRandomTime = (options = null) => {
   return {dateFrom, dateTo};
 };
 
-const eventTypes = [
-  'Taxi',
-  'Bus',
-  'Train',
-  'Ship',
-  'Transport',
-  'Drive',
-  'Flight',
-  'Check-in',
-  'Sightseeing',
-  'Restaurant',
-];
-
-const cities = [
-  'Ostin',
-  'Washington',
-  'Berlin',
-  'Moscow',
-  'Texas',
-  'Rome',
-  'Osaka',
-];
-
 const descriptions = [
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
   'Cras aliquet varius magna, non porta ligula feugiat eget.',
@@ -62,20 +39,30 @@ const descriptions = [
   'In rutrum ac purus sit amet tempus.',
 ];
 
-const generateRandomPicture = () => {
+const generateRandomPhoto = () => {
   return {
     'description': getRandomArrayItem(descriptions),
     'src': `http://picsum.photos/248/152?r=${getRandomInteger(1, 55)}`,
   };
 };
 
-const generateRandomDestination = () => {
+const generateRandomDestination = (city) => {
   return {
-    'name': getRandomArrayItem(cities),
+    'name': city,
     'description': getRandomArray(getRandomInteger(1, 5), () => getRandomArrayItem(descriptions)).join(' '),
-    'pictures': getRandomArray(getRandomInteger(1, 5), generateRandomPicture),
+    'photos': getRandomArray(getRandomInteger(1, 5), generateRandomPhoto),
   };
 };
+
+const destinations = [
+  'Ostin',
+  'Washington',
+  'Berlin',
+  'Moscow',
+  'Texas',
+  'Rome',
+  'Osaka',
+].map((city) => generateRandomDestination(city));
 
 const generateOffer = () => {
   return {
@@ -85,19 +72,45 @@ const generateOffer = () => {
   };
 };
 
+const generateRandomOffers = () => getRandomArray(getRandomInteger(0, 5), generateOffer);
+const generateEventType = (type) => {
+  return {
+    type: type,
+    offers: generateRandomOffers(),
+  };
+};
+
+const eventTypes = [
+  'Taxi',
+  'Bus',
+  'Train',
+  'Ship',
+  'Transport',
+  'Drive',
+  'Flight',
+  'Check-in',
+  'Sightseeing',
+  'Restaurant',
+].map((type) => generateEventType(type));
+
 export const generateTripEventItem = () => {
   const time = getRandomTime();
+  const eventType = getRandomArrayItem(eventTypes);
   return {
     id: nanoid(),
     dateFrom: time.dateFrom,
     dateTo: time.dateTo,
-    type: getRandomArrayItem(eventTypes),
-    destination: generateRandomDestination(),
-    offers: getRandomArray(getRandomInteger(0, 5), generateOffer),
+    type: eventType.type,
+    destination: getRandomArrayItem(destinations),
+    offers: eventType.offers,
     price: getRandomInteger(1, 1000),
   };
 };
 
 export const getAllEventTypes = () => {
   return eventTypes.slice();
+};
+
+export const getAllDestinations = () => {
+  return destinations.slice();
 };

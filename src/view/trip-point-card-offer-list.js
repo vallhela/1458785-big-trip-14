@@ -1,4 +1,4 @@
-import {createOfferListItemTemplate} from './trip-event-offer-item.js';
+import {createOfferListItemTemplate} from './trip-point-card-offer-item.js';
 
 export const createOfferListTemplate = (offers) => {
   if (!offers || offers.length == 0) {

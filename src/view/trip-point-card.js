@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import {createOfferListTemplate} from './trip-event-offer-list.js';
+import {createOfferListTemplate} from './trip-point-card-offer-list.js';
 import AbstractView from './abstract.js';
 
 const formatDurationPart = (value) => {
