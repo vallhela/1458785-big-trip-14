@@ -1,21 +1,22 @@
 import TripPointCardView from '../view/trip-point-card';
 import TripPointFormView from '../view/trip-point-form';
 
-import {remove, render, RenderPosition, replace} from '../utils/render';
+import {remove, render, RenderPosition, replace, tryReplace, contains} from '../utils/render';
+import { TripPointListContentFilterType } from '../const';
 
 export default class TripPoint {
-  constructor(container, changeData, beforeFormShown) {
+  constructor(container, changeData, deleteData, beforeFormShown) {
     this.init = this.init.bind(this);
     this._renderCard = this._renderCard.bind(this);
     this._renderForm = this._renderForm.bind(this);
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
+    this._handleDelete = this._handleDelete.bind(this);
     this._handleKeyDown = this._handleKeyDown.bind(this);
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
-    this._tryReplace = this._tryReplace.bind(this);
-    this._contains = this._contains.bind(this);
 
     this._container = container;
     this._changeData = changeData;
+    this._deleteData = deleteData;
     this._beforeFormShown = beforeFormShown;
 
     this._cardComponent = null;
@@ -30,21 +31,23 @@ export default class TripPoint {
     const formComponent = new TripPointFormView(point);
     formComponent.setClickHandler(this._renderCard);
     formComponent.setFormSubmitHandler(this._handleFormSubmit);
+    formComponent.setDeleteHandler(this._handleDelete);
 
-    this._tryReplace(this._cardComponent, cardComponent);
-    this._tryReplace(this._formComponent, formComponent);
+    tryReplace(this._cardComponent, cardComponent);
+    this._cardComponent = cardComponent;
+
+    tryReplace(this._formComponent, formComponent);
+    this._formComponent = formComponent;
 
     if(this._point === undefined) {
-      render(this._container, cardComponent, RenderPosition.BEFOREEND);
+      render(this._container, this._cardComponent, RenderPosition.BEFOREEND);
     }
 
     this._point = point;
-    this._cardComponent = cardComponent;
-    this._formComponent = formComponent;
   }
 
   showCard() {
-    if(this._cardComponent !== null && this._formComponent !== null && this._contains(this._formComponent)){
+    if(this._cardComponent !== null && this._formComponent !== null && contains(this._container, this._formComponent)){
       this._renderCard();
     }
   }
@@ -59,25 +62,6 @@ export default class TripPoint {
       remove(this._formComponent);
       this._formComponent = null;
     }
-  }
-
-  _tryReplace(oldComponent, newComponent) {
-    if(oldComponent !== null) {
-      if(this._contains(oldComponent)) {
-        replace(oldComponent, newComponent);
-      }
-
-      remove(oldComponent);
-    }
-  }
-
-  _contains(component) {
-    if(component === null) {
-      return false;
-    }
-
-    const result = this._container.getElement().contains(component.getElement());
-    return result;
   }
 
   _renderCard() {
@@ -114,5 +98,9 @@ export default class TripPoint {
   _handleFormSubmit(point) {
     this._changeData(point);
     this._renderCard();
+  }
+
+  _handleDelete(point) {
+    this._deleteData(point);
   }
 }

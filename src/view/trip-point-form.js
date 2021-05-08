@@ -125,6 +125,18 @@ export default class TripPointForm extends SmartView {
     }
   }
 
+  setDeleteHandler(callback) {
+    this._callback.delete = callback;
+  }
+
+  _deleteHandler() {
+    const callback = this._callback.delete;
+    if(callback){
+      const point = parseDataToPoint(this._data);
+      callback(point);
+    }
+  }
+
   reset(point) {
     this.updateData(parsePointToData(point));
   }
@@ -134,6 +146,7 @@ export default class TripPointForm extends SmartView {
       evt.preventDefault();
       this._formSubmitHandler();
     });
+    element.querySelector('.event__reset-btn').addEventListener('click', this._deleteHandler.bind(this));
     element.querySelector('.event__input--destination').addEventListener('change', this._destinationChangeHandler);
     element.querySelector('.event__rollup-btn').addEventListener('click', this._clickHandler);
 

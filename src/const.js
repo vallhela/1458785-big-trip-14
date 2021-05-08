@@ -6,4 +6,10 @@ const TripPointListContentSortType = {
   OFFER: 'offer',
 };
 
-export {TripPointListContentSortType};
+const TripPointListContentFilterType = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PAST: 'past',
+};
+
+export {TripPointListContentSortType, TripPointListContentFilterType};

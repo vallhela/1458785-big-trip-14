@@ -7,45 +7,57 @@ import TripPointListContentSortPresenter from './trip-point-list-content-sort';
 import {render, RenderPosition, remove} from '../utils/render';
 import {updateArrayItemById} from '../utils/common';
 import {inverse} from '../utils/sort';
-import {getSorter} from '../utils/trip-point';
+import {getFilter, getSorter} from '../utils/trip-point';
 
-import {TripPointListContentSortType} from '../const';
+import {TripPointListContentSortType, TripPointListContentFilterType} from '../const';
+
+import {TripPointFilterModelEventType} from '../model/trip-point-filter.js';
+import {TripPointsModelEventType} from '../model/trip-points.js';
 
 export default class TripPointListContent {
-  constructor(container) {
+  constructor(container, pointsModel, filterModel) {
     this.init = this.init.bind(this);
     this.destroy = this.destroy.bind(this);
     this._handlePointChange = this._handlePointChange.bind(this);
+    this._handlePointDelete = this._handlePointDelete.bind(this);
     this._handleBeforeFormShown = this._handleBeforeFormShown.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
+    this._getDefaultSortType = this._getDefaultSortType.bind(this);
+    this._handlePointsModelNotify= this._handlePointsModelNotify.bind(this);
+    this._handleFilterModelNotify = this._handleFilterModelNotify.bind(this);
 
     this._container = container;
-    this._currentSortType = TripPointListContentSortType.DAY;
+    this._pointsModel = pointsModel;
+    this._filterModel = filterModel;
+    this._currentFilterType = filterModel.getFilter();
+    this._currentSortType = this._getDefaultSortType();
+    this._pointPresenter = {};
 
     this._sortPresenter = null;
     this._areaComponent = null;
   }
 
-  init(points) {
-    if(this._points === undefined) {
-      this._sortPresenter = new TripPointListContentSortPresenter(this._container, this._handleSortTypeChange);
-      this._sortPresenter.init(this._currentSortType);
+  init() {
+    this.destroy();
 
-      this._areaComponent = new TripPointListAreaView();
-      render(this._container, this._areaComponent, RenderPosition.BEFOREEND);
+    this._sortPresenter = new TripPointListContentSortPresenter(this._container, this._handleSortTypeChange);
+    this._sortPresenter.init(this._currentSortType);
 
-      this._pointPresenter = {};
-    }
-    else if(this._points !== null) {
-      this._clearPoints();
-    }
+    this._areaComponent = new TripPointListAreaView();
+    render(this._container, this._areaComponent, RenderPosition.BEFOREEND);
 
-    this._points = points ? points.slice() : null;
-    this._sortPoints();
     this._renderPoints();
+
+    this._pointsModel.addObserver(this._handlePointsModelNotify);
+    this._filterModel.addObserver(this._handleFilterModelNotify);
   }
 
   destroy() {
+    this._filterModel.removeObserver(this._handleFilterModelNotify);
+    this._pointsModel.removeObserver(this._handlePointsModelNotify);
+
+    this._clearPoints();
+
     if(this._areaComponent !== null) {
       remove(this._areaComponent);
       this._areaComponent = null;
@@ -59,7 +71,7 @@ export default class TripPointListContent {
 
   _renderPoint(point) {
     const item = new TripPointListItemView();
-    const pointPresenter = new TripPointPresenter(item, this._handlePointChange, this._handleBeforeFormShown);
+    const pointPresenter = new TripPointPresenter(item, this._handlePointChange, this._handlePointDelete, this._handleBeforeFormShown);
     pointPresenter.init(point);
 
     render(this._areaComponent, item, RenderPosition.BEFOREEND);
@@ -68,10 +80,17 @@ export default class TripPointListContent {
   }
 
   _renderPoints() {
-    const points = this._points;
-    if(points) {
-      points.forEach((point) => this._renderPoint(point));
-    }
+    this._clearPoints();
+
+    const filterType = this._filterModel.getFilter();
+    const sortType = this._currentSortType;
+
+    const points = this._pointsModel.getPoints();
+    const filteredPoints = this._filterPoints(points, filterType);
+    const sortedPoints = this._sortPoints(filteredPoints, sortType);
+
+    this._sortPresenter.init(sortType);
+    sortedPoints.forEach((point) => this._renderPoint(point));
   }
 
   _clearPoints() {
@@ -87,6 +106,10 @@ export default class TripPointListContent {
     this._pointPresenter[updated.id].init(updated);
   }
 
+  _handlePointDelete(deleted) {
+    this._pointsModel.removePoint(deleted);
+  }
+
   _handleBeforeFormShown() {
     Object
       .values(this._pointPresenter)
@@ -98,19 +121,55 @@ export default class TripPointListContent {
       return;
     }
 
-    this._sortPoints(sortType);
     this._currentSortType = sortType;
-
-    this._clearPoints();
     this._renderPoints();
   }
 
-  _sortPoints(sortType) {
-    if(sortType === undefined) {
-      sortType = this._currentSortType;
+  _handlePointsModelNotify(eventType, point) {
+    if(eventType === TripPointsModelEventType.REMOVED)
+    {
+      this._renderPoints();
+    }
+    else if(eventType === TripPointsModelEventType.ADDED || eventType === TripPointsModelEventType.REFRESHED) {
+      this._currentFilterType = this._getDefaultFilterType();
+      this._filterModel.setFilter(this._currentFilterType);
+
+      this._currentSortType = this._getDefaultSortType();
+      this._renderPoints();
+    }
+    else if(eventType == TripPointsModelEventType.UPDATED) {
+      this._pointPresenter[point.id].init(point);
+    }
+  }
+
+  _handleFilterModelNotify(eventType, filterType) {
+    if(eventType !== TripPointFilterModelEventType.CHANGED) {
+      return;
     }
 
+    if(this._currentFilterType === filterType) {
+      return;
+    }
+
+    this._currentSortType = this._getDefaultSortType();
+    this._renderPoints();
+  }
+
+  _filterPoints(points, filterType) {
+    const filter = getFilter(filterType);
+    return filter(points);
+  }
+
+  _sortPoints(points, sortType) {
     const sorter = getSorter(sortType);
-    this._points.sort(inverse(sorter));
+    return points.sort(inverse(sorter));
+  }
+
+  _getDefaultSortType() {
+    return TripPointListContentSortType.DAY;
+  }
+
+  _getDefaultFilterType() {
+    return TripPointListContentFilterType.EVERYTHING;
   }
 }

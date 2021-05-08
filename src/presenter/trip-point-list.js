@@ -5,24 +5,25 @@ import TripPointListContentPresenter from './trip-point-list-content';
 import { render, RenderPosition, remove} from '../utils/render';
 
 export default class TripPointList {
-  constructor(container) {
+  constructor(container, pointsModel, filterModel) {
     this.init = this.init.bind(this);
-    this._resetContentPresenter = this._resetContentPresenter.bind(this);
-    this._resetEmptyComponent = this._resetEmptyComponent.bind(this);
+    this.destroy = this.destroy.bind(this);
 
     this._container = container;
+    this._pointsModel = pointsModel;
+    this._filterModel = filterModel;
 
     this._emptyComponent = null;
     this._contentPresenter = null;
   }
 
-  init(points) {
-    this._resetEmptyComponent();
-    this._resetContentPresenter();
+  init() {
+    this.destroy();
 
-    if(points && points.length > 0) {
-      this._contentPresenter = new TripPointListContentPresenter(this._container);
-      this._contentPresenter.init(points);
+    const hasPoints = this._pointsModel.hasPoints();
+    if(hasPoints) {
+      this._contentPresenter = new TripPointListContentPresenter(this._container, this._pointsModel, this._filterModel);
+      this._contentPresenter.init();
     }
     else{
       this._emptyComponent = new TripPointListEmptyView();
@@ -30,14 +31,12 @@ export default class TripPointList {
     }
   }
 
-  _resetContentPresenter() {
+  destroy() {
     if(this._contentPresenter !== null) {
       this._contentPresenter.destroy();
       this._contentPresenter = null;
     }
-  }
 
-  _resetEmptyComponent() {
     if(this._emptyComponent !== null) {
       remove(this._emptyComponent);
       this._emptyComponent = null;

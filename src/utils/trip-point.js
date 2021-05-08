@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-import {TripPointListContentSortType} from '../const';
+import {TripPointListContentFilterType, TripPointListContentSortType} from '../const';
 import {compareForNull} from './sort';
 
 export const sortByDay = (left, right) => {
@@ -92,5 +92,41 @@ export const getSorter = (sortType) => {
     case TripPointListContentSortType.PRICE: return sortByPrice;
     case TripPointListContentSortType.OFFER: return sortByOffers;
     default: throw new Error('Unsupported sortType');
+  }
+};
+
+export const filterPast = (points) => {
+  const now = dayjs();
+  return points.filter(
+    (point) => {
+      const date = point.dateFrom;
+      const compared = compareForNull(date, now);
+      if(compared !== null) {
+        return false;
+      }
+
+      return dayjs(date).diff(now) < 0;
+    });
+};
+
+export const filterFuture = (points) => {
+  const now = dayjs();
+  return points.filter(
+    (point) => {
+      const date = point.dateFrom;
+      const compared = compareForNull(date, now);
+      if(compared !== null) {
+        return false;
+      }
+
+      return dayjs(now).diff(date) < 0;
+    });
+};
+
+export const getFilter = (filterType) => {
+  switch(filterType) {
+    case TripPointListContentFilterType.FUTURE: return filterFuture;
+    case TripPointListContentFilterType.PAST: return filterPast;
+    default: return (points) => points;
   }
 };
